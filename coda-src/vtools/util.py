@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from ctypes import Structure, c_char_p, c_int, c_void_p, c_uint, sizeof
+from codaconf import codaconf_init, codaconf_lookup
 import platform
 CODA_CONTROL = '.CONTROL'
 mountPoint = None
