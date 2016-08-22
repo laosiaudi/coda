@@ -18,7 +18,7 @@ def _pioctl(path, com, vidata, follow):
     try:
         fd = open(path, "r")
     except:
-        print("%s does not exist!" % path, file = sys.stderr)
+        sys.stderr.write("%s does not exist!" % path)
         return -1
 
     code = fcntl.ioctl(fd, cmd, data);
