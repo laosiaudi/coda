@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from ctypes import Structure, c_char_p, c_int, c_void_p, c_uint
+from ctypes import Structure, c_char_p, c_int, c_void_p, c_uint, sizeof
 import platform
 CODA_CONTROL = '.CONTROL'
 mountPoint = None
