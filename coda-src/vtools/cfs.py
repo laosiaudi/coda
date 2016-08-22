@@ -3,6 +3,230 @@ import sys
 import util
 import socket
 import struct
+import ctypes
+from pioctl import pioctl
+
+
+def fail():
+    print 'Bogus or missing opcode: type "cfs help" for list'
+    sys.exit(1)
+
+def brave(cmd):
+    print '\tDANGER:    %s\n' % cmd_dict[cmd]["danger"]
+    '''
+    Only works for Python 2! May change later
+    '''
+    op = raw_input('\tDo you really want to do this? [n] ')
+
+    if op == 'y':
+        print '\tFools rush in where angels fear to tread ........\n'
+        return 1
+    else:
+        print '\tDiscretion is the better part of valor!\n'
+        return 0
+
+def parseHost(name_or_ip):
+    addr = None
+
+    #translate to ipv4 format first
+    try:
+        addr = socket.gethostbyname(name_or_ip)
+    except:
+        return None
+
+    return socket.inet_aton(addr)
+
+def CheckServers(argv, cmd):
+
+    if len(argv) < 2 or len(argv) > 10:
+        print 'Usage: %s' % cmd_dict[cmd]["usetxt"]
+        sys.exit(1)
+
+    MAXHOSTS = 8
+    vio =util.ViceIoctl(0, piobuf, 0, CFS_PIOBUFSIZE)
+
+    host_str = ""
+    cnt = 0
+    for host in sys.argv[2:]:
+        addr = parseHost(host)
+        if not addr:
+            continue
+        host_str += addr
+        cnt += 1
+
+    if cnt:
+        vio.in_data = struct.pack("!is", cnt, host_str)
+        vio.in_size = len(vio.in_data)
+    print 'Contacting Server .....\n'
+    rc = pioctl(None, util._VICEIOCTL(util._VIOCCKSERV), vio, 1)
+    if not rc:
+        print 'VIOCCKSERV Error'
+        sys.exit(1)
+
+    #See if there are any dead servers
+    num_of_down_srv = struct.unpack('<i', piobuf[0:4])
+    downsrvarray = [socket.inet_ntoa(piobuf[i:i + 4]) for i in range(4, len(piobuf), 4)]
+    if not num_of_down_srv:
+        print 'All servers up!'
+        return
+
+    #Print out names of dead servers
+    print 'These servers still down: '
+    for srv in downsrvarray:
+        hent = socket.gethostbyaddr(srv)
+        if hent:
+            print hent[0]
+        else:
+            print srv
+    return
+
+def BeginRepair():
+    pass
+
+def CheckPointML():
+    pass
+
+def CheckVolumes():
+    pass
+
+def ClearPriorities():
+    pass
+
+def DisableASR():
+    pass
+
+def EnableASR():
+    pass
+
+def EndRepair():
+    pass
+
+def ExamineClosure():
+    pass
+
+def At_CPU():
+    pass
+
+def At_SYS():
+    pass
+
+def FlushASR():
+    pass
+
+def FlushCache():
+    pass
+
+def FlushObject():
+    pass
+
+def FlushVolume():
+    pass
+
+def GetFid():
+    pass
+
+def GetPFid():
+    pass
+
+def GetPath():
+    pass
+
+def GetMountPoint():
+    pass
+
+def Help():
+    pass
+
+def ListACL():
+    pass
+
+def ListCache():
+    pass
+
+def ListVolume():
+    pass
+
+def LookAside():
+    pass
+
+def LsMount():
+    pass
+
+def MarkFidIncon():
+    pass
+
+def MkMount():
+    pass
+
+def PurgeML():
+    pass
+
+def ReplayClosure():
+    pass
+
+def RmMount():
+    pass
+
+def SetACL():
+    pass
+
+def SetQuota():
+    pass
+
+def SetVolume():
+    pass
+
+def TruncateLog():
+    pass
+
+def UnloadKernel():
+    pass
+
+def WaitForever():
+    pass
+
+def WhereIs():
+    pass
+
+def Redir():
+    pass
+
+def Disconnect():
+    pass
+
+def Reconnect():
+    pass
+
+def WriteDisconnect():
+    pass
+
+def Adaptive():
+    pass
+
+def Strong():
+    pass
+
+def ForceReintegrate():
+    pass
+
+def ExpandObject():
+    pass
+
+def CollapseObject():
+    pass
+
+def ListLocal():
+    pass
+
+def CheckLocal():
+    pass
+
+def DiscardLocal():
+    pass
+
+def PreserveLocal():
+    pass
+
 
 abbreviation = {
     "br": "beginrepair",
@@ -108,7 +332,7 @@ cmd_dict = {
                     "helptxt": "Flush objects from cache ",
                     "danger": "these files will be lost, if disconnected"
         },
-    "flushvolume": {"handler": lushVolume,
+    "flushvolume": {"handler": FlushVolume,
                     "usetext": "cfs flushvolume  <dir> [<dir> <dir> ...]",
                     "helptxt": "Flush all data in volumes (DANGEROUS)",
                     "danger": "important files may be lost, if disconnected"
@@ -290,96 +514,14 @@ cmd_dict = {
         },
 }
 CFS_PIOBUFSIZE = 2048
-piobuf = "0" * CFS_PIOBUFSIZE
-
-def fail():
-    print 'Bogus or missing opcode: type "cfs help" for list'
-    sys.exit(1)
-
-def brave(cmd):
-    print '\tDANGER:    %s\n' % cmd_dict[cmd]["danger"]
-    '''
-    Only works for Python 2! May change later
-    '''
-    op = raw_input('\tDo you really want to do this? [n] ')
-
-    if op == 'y':
-        print '\tFools rush in where angels fear to tread ........\n'
-        return 1
-    else:
-        print '\tDiscretion is the better part of valor!\n'
-        return 0
-
-def parseHost(name_or_ip):
-    addr = None
-
-    #translate to ipv4 format first
-    try:
-        addr = socket.gethostbyname(name_or_ip)
-    except:
-        return None
-
-    return socket.inet_aton(addr)
-
-def CheckServers(argv, cmd):
-
-    if len(argv) < 2 or len(argv) > 10:
-        print 'Usage: %s' % cmd_dict[cmd]["usetxt"]
-        sys.exit(1)
-
-    MAXHOSTS = 8
-    vio = ViceIoctl(0, piobuf, 0, CFS_PIOBUFSIZE)
-
-    host_str = ""
-    cnt = 0
-    for host in sys.argv[2:]:
-        addr = parseHost(host)
-        if not addr:
-            continue
-        host_str += addr
-        cnt += 1
-
-    if cnt:
-        vio.in_data = struct.pack("!is", cnt, host_str)
-        vio.in_size = len(vio.in_data)
-    print 'Contacting Server .....\n'
-    rc = pioctl(None, util._VICEIOCTL(util._VIOCCKSERV), vio, 1)
-    if not rc:
-        print 'VIOCCKSERV Error'
-        sys.exit(1)
-
-    #See if there are any dead servers
-    num_of_down_srv = struct.unpack('<i', piobuf[0:4])
-    downsrvarray = [socket.inet_ntoa(piobuf[i:i + 4]) for i in range(4, len(piobuf), 4)]
-    if not num_of_down_srv:
-        print 'All servers up!'
-        return
-
-    #Print out names of dead servers
-    print 'These servers still down: '
-    for srv in downsrvarray:
-        hent = socket.gethostbyaddr(srv)
-        if hent:
-            print hent[0]
-        else:
-            print srv
-    return
-
-
-
-
-
-
-
-
-
-
+piobuf_str = "0" * CFS_PIOBUFSIZE
+piobuf = ctypes.c_char_p(piobuf_str)
 
 if __name__ == '__main__':
-    if (len(sys.argv) < 2)
+    if len(sys.argv) < 2:
         fail()
     op = sys.argv[1]
-    if op not in abbreviation and op not in cmd_dict
+    if op not in abbreviation and op not in cmd_dict:
         fail()
 
     if op in abbreviation:

@@ -14,17 +14,18 @@ def getMountPoint():
             mountPoint = codaconf_lookup("mountpoint", "/coda")
     return mountPoint
 
+class ViceIoctl(Structure):
+    _fields_ = [("in_data", c_char_p),
+                ("out_data", c_char_p),
+                ("in_size", c_uint),
+                ("out_size", c_uint)]
+
 class PioctlData(Structure):
     _fields_ = [("path", c_char_p),
                 ("follow", c_int),
                 ("vi", ViceIoctl),
                 ("cmd", c_int)]
 
-class ViceIoctl:
-    _fields_ = [("in_data", c_void_p),
-                ("out_data", c_void_p),
-                ("in_size", c_uint),
-                ("out_size", c_uint)]
 
 _IOC_NRBITS = 8
 _IOC_TYPEBITS = 2
@@ -50,10 +51,10 @@ if platform.system() == 'Linux':
 _IOC_SIZESHIFT = (_IOC_TYPESHIFT+_IOC_TYPEBITS)
 _IOC_DIRSHIFT = (_IOC_SIZESHIFT+_IOC_SIZEBITS)
 
-_IOC_DIR(nr) = (((nr) >> _IOC_DIRSHIFT) & _IOC_DIRMASK)
-_IOC_TYPE(nr) = (((nr) >> _IOC_TYPESHIFT) & _IOC_TYPEMASK)
-_IOC_NR(nr) = (((nr) >> _IOC_NRSHIFT) & _IOC_NRMASK)
-_IOC_SIZE(nr) = (((nr) >> _IOC_SIZESHIFT) & _IOC_SIZEMASK)
+def _IOC_DIR(nr): return (((nr) >> _IOC_DIRSHIFT) & _IOC_DIRMASK)
+def _IOC_TYPE(nr): return (((nr) >> _IOC_TYPESHIFT) & _IOC_TYPEMASK)
+def _IOC_NR(nr): return (((nr) >> _IOC_NRSHIFT) & _IOC_NRMASK)
+def _IOC_SIZE(nr): return (((nr) >> _IOC_SIZESHIFT) & _IOC_SIZEMASK)
 
 _IOC_NONE = 0
 _IOC_WRITE = 1
