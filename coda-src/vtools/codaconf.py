@@ -22,8 +22,8 @@ def codaconf_find(name, value, replace):
             conf.write(name + "=" + "\"" + value + "\"\n")
             conf.close()
         except:
-            print("Cannot write configuration file %s\n"
-                  % conffile, file = stderr)
+            sys.stderr.write("Cannot write configuration file %s\n"
+                  % conffile)
             return None
 #endif
     codaconf_table[name] = value
@@ -34,8 +34,8 @@ def codaconf_init_one(cf):
     try:
         conf = open(cf, "r")
     except:
-        print("Cannot read configuration file %s, will use
-              default values." % cf, file = stderr)
+        sys.stderr.write("Cannot read configuration file %s, will use
+              default values.\n" % cf)
         return -1
     if cf != conffile:
         conffile = cf
