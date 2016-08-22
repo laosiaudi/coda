@@ -50,9 +50,9 @@ def codaconf_init_one(cf):
         pairs = line.split("=")
         name = pairs[0].strip()
         value = pairs[1].strip()
-        if value[0] == '"' or value[0] == '\''
+        if value[0] == '"' or value[0] == '\'':
             value[0] = ""
-        if value[-1] == '"' or value[-1] == '\''
+        if value[-1] == '"' or value[-1] == '\'':
             value[-1] = ""
         found_value = codaconf_find(name, value, True)
 #ifdef confdebug
