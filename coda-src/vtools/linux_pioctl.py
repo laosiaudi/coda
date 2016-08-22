@@ -8,8 +8,9 @@ def _pioctl(path, com, vidata, follow):
     cmd = (com & ~(PIOCPARM_MASK << 16))
     if path == None:
         path = getMountPoint()
-    if not hasattr(linux_pioctl, "ctlfile"):
-        linux_pioctl.ctlfile = None
+    if not hasattr(_pioctl, "ctlfile"):
+        _pioctl.ctlfile = None
+    ctlfile = _pioctl.ctlfile
     if ctlfile is None:
         mtpt = getMountPoint()
         ctlfile = mtpt + CODA_CONTROL

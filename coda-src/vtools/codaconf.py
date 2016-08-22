@@ -1,6 +1,6 @@
 import os, sys
 
-default_codaconfpath = "@sysconfdirx@:/usr/local/etc/coda:/etc/coda:"
+default_codaconfpath = "/usr/local/etc/coda:/etc/coda:"
 conffile = None
 codaconf_table = {}
 
@@ -72,13 +72,16 @@ def codaconf_init(confname):
     paths = codaconfpath.split(":")
     conffile = None
     for path in paths:
-        for filename in os.listdir(path):
-            abspath = os.path.abspath(filename)
-            if confname in filename and os.access(abspath, os.R_OK):
-                conffile = abspath
-                break
-        if conffile:
-            break
+	try:
+        	for filename in os.listdir(path):
+        	    abspath = os.path.abspath(filename)
+        	    if confname in filename and os.access(abspath, os.R_OK):
+        	        conffile = abspath
+        	        break
+        	if conffile:
+        	    break
+	except:
+		continue
     if conffile is None or codaconf_init_one(conffile) != 0:
         return -1
     return 0
