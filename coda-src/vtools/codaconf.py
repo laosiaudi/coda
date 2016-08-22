@@ -69,7 +69,7 @@ def codaconf_init_one(cf):
 
 def codaconf_init(confname):
     codaconfpath = os.getenv("CODACONFPATH", default_codaconfpath)
-    paths = condaconfpath.split(":")
+    paths = codaconfpath.split(":")
     conffile = None
     for path in paths:
         for filename in os.listdir(paths):
