@@ -13,7 +13,7 @@ def codaconf_find(name, value, replace):
         if replace and value:
             codaconf_table[name] = value
         return codaconf_table[name]
-    if value == None
+    if value == None:
         return None
 #ifdef CONFWRITE
     if replace not True:
