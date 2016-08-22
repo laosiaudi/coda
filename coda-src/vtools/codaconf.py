@@ -34,8 +34,8 @@ def codaconf_init_one(cf):
     try:
         conf = open(cf, "r")
     except:
-        sys.stderr.write("Cannot read configuration file %s, will use
-              default values.\n" % cf)
+        sys.stderr.write("Cannot read configuration file %s, will use\
+                         default values.\n" % cf)
         return -1
     if cf != conffile:
         conffile = cf
