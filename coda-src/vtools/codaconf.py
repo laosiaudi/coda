@@ -60,7 +60,7 @@ def codaconf_init_one(cf):
                          % (lineno, name, value))
         if found_value:
             sys.stdout.write("stored-value: '%s'\n" % found_value)
-        else
+        else:
             sys.stdout.write("not found?\n")
         sys.stdout.flush()
 #endif
