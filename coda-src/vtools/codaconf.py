@@ -16,8 +16,9 @@ def codaconf_find(name, value, replace):
     if value == None:
         return None
 #ifdef CONFWRITE
-    if not replace:
+    if not replace and conffile:
         try:
+	    print conffile
             conf = fopen(conffile, "a")
             conf.write(name + "=" + "\"" + value + "\"\n")
             conf.close()

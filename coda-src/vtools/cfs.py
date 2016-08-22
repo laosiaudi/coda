@@ -64,8 +64,9 @@ def CheckServers(argv, cmd):
         sys.exit(1)
 
     #See if there are any dead servers
-    num_of_down_srv = struct.unpack('<i', piobuf[0:4])
-    downsrvarray = [socket.inet_ntoa(piobuf[i:i + 4]) for i in range(4, len(piobuf), 4)]
+    num_of_down_srv = struct.unpack('<i', str(piobuf)[0:4])
+    print piobuf.value
+    downsrvarray = [socket.inet_ntoa((piobuf.value)[i:i + 4]) for i in range(4, len((piobuf.value)), 4)]
     if not num_of_down_srv:
         print 'All servers up!'
         return
