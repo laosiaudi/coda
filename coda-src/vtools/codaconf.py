@@ -72,7 +72,7 @@ def codaconf_init(confname):
     paths = codaconfpath.split(":")
     conffile = None
     for path in paths:
-        for filename in os.listdir(paths):
+        for filename in os.listdir(path):
             abspath = os.path.abspath(filename)
             if confname in filename and os.access(abspath, os.R_OK):
                 conffile = abspath
