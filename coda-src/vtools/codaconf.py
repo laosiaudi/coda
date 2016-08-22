@@ -79,7 +79,7 @@ def codaconf_init(confname):
                 break
         if conffile:
             break
-    if conffile is None or codaconf_init_one(conffile) not 0:
+    if conffile is None or codaconf_init_one(conffile) != 0:
         return -1
     return 0
 
