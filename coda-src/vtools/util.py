@@ -67,7 +67,7 @@ def _IOC(dir, type, nr, size):
             size << _IOC_SIZESHIFT
 
 def _VICEIOCTL(id):
-    return _IOW('V', id, ctypes.sizeof(ViceIoctl))
+    return _IOW('V', id, sizeof(ViceIoctl))
 
 def _VALIDVICEIOCTL(com):
     return com >= _VICEIOCTL(0) and com <= _VICEIOCT(255)
