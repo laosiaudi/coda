@@ -77,7 +77,7 @@ def codaconf_init(confname):
             if confname in filename and os.access(abspath, os.R_OK):
                 conffile = abspath
                 break
-        if conffile not None:
+        if conffile:
             break
     if conffile is None or codaconf_init_one(conffile) not 0:
         return -1
