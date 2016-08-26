@@ -20,17 +20,17 @@ def _pioctl(path, com, vidata, follow):
     if ctlfile is None:
         mtpt = getMountPoint()
         ctlfile = mtpt + "/" + CODA_CONTROL
-    data = PioctlData(ctypes.c_char_p(path), follow, vidata, 0)
+
+    data = PioctlData(ctypes.c_char_p(path), follow, vidata)
 
     try:
-        fd = open(ctlfile, "r")
+        fd = open(ctlfile, "rb")
     except:
         sys.stderr.write("%s does not exist!" % ctlfile)
         return -1
-    print "fd is " + str(fd) + " cmd is " + str(cmd)
-    buf = array.array("B", data)
-    code = fcntl.ioctl(fd, cmd, buf);
-    fd.close()
 
+    tmp = array.array('B', data.send())
+    code = fcntl.ioctl(fd, cmd, tmp, 1);
+    fd.close()
     return code
 

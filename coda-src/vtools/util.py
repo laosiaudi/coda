@@ -1,7 +1,9 @@
 #! /usr/bin/env python
-from ctypes import Structure, c_char_p, c_int, c_void_p, c_uint, sizeof
+from ctypes import Structure, c_char_p, c_int, c_void_p, c_uint, sizeof, c_ushort
 from codaconf import codaconf_init, codaconf_lookup
 import platform
+import sys
+import struct
 CODA_CONTROL = '.CONTROL'
 mountPoint = None
 _VIOCCKSERV = 10
@@ -16,20 +18,23 @@ def getMountPoint():
     return mountPoint
 
 class ViceIoctl(Structure):
-    _fields_ = [("in_data", c_char_p),
-                ("out_data", c_char_p),
-                ("in_size", c_uint),
-                ("out_size", c_uint)]
+    _fields_ = [("in_data", c_void_p),
+		("out_data", c_void_p),
+		("in_size", c_ushort),
+		("out_size", c_ushort)]
     def send(self):
 	return buffer(self)[:]
+	#return struct.pack('%ppII', self.in_data, self.out_data, self.in_size, self.out_size)
 
 class PioctlData(Structure):
     _fields_ = [("path", c_char_p),
-                ("follow", c_int),
-                ("vi", ViceIoctl),
-                ("cmd", c_int)]
+		("follow", c_int),
+		("vi", ViceIoctl)]
+		#("cmd", c_int)]
     def send(self):
 	return buffer(self)[:]
+	#print len(self.vi.send())
+	#return struct.pack('%pi%dsi' % len(self.vi.send()), self.path, self.follow, self.vi.send(), self.cmd)
 
 
 _IOC_NRBITS = 8
@@ -98,7 +103,10 @@ def _IOWR(type, nr, size):
 if __name__ == "__main__":
 	k = _IOW(ord('V'), 10, 24)
 	print str(k)
-
+	print sizeof(c_char_p)
+	print sizeof(c_int)
+	print sizeof(ViceIoctl)
+	print sizeof(c_int)
 
 
 

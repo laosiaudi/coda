@@ -5,6 +5,7 @@ import socket
 import struct
 import ctypes
 from pioctl import pioctl
+import array
 
 
 def fail():
@@ -37,13 +38,14 @@ def parseHost(name_or_ip):
     return socket.inet_aton(addr)
 
 def CheckServers(argv, cmd):
-
+    global piobuf
+    global CFS_PIOBUFSIZE
     if len(argv) < 2 or len(argv) > 10:
         print 'Usage: %s' % cmd_dict[cmd]["usetxt"]
         sys.exit(1)
 
     MAXHOSTS = 8
-    vio =util.ViceIoctl(0, piobuf, 0, CFS_PIOBUFSIZE)
+    vio =util.ViceIoctl(0, ctypes.addressof(piobuf), 0, CFS_PIOBUFSIZE)
 
     host_str = ""
     cnt = 0
@@ -55,18 +57,18 @@ def CheckServers(argv, cmd):
         cnt += 1
 
     if cnt:
-        vio.in_data = struct.pack("!is", cnt, host_str)
-        vio.in_size = len(vio.in_data)
+	tmp = struct.pack("i%ds" % len(host_str), cnt, host_str)
+        vio.in_data = tmp
+        vio.in_size = len(tmp)
     print 'Contacting Server .....\n'
     rc = pioctl(None, util._VICEIOCTL(util._VIOCCKSERV), vio, 1)
-    if not rc:
+    if rc < 0:
         print 'VIOCCKSERV Error'
         sys.exit(1)
 
     #See if there are any dead servers
-    num_of_down_srv = struct.unpack('<i', str(piobuf)[0:4])
-    print piobuf.value
-    downsrvarray = [socket.inet_ntoa((piobuf.value)[i:i + 4]) for i in range(4, len((piobuf.value)), 4)]
+    num_of_down_srv = struct.unpack('<I', (piobuf)[0:4])[0]
+    downsrvarray = [socket.inet_ntoa(piobuf[i:i + 4]) for i in range(4, len(piobuf) - 1, 4)]
     if not num_of_down_srv:
         print 'All servers up!'
         return
@@ -74,6 +76,7 @@ def CheckServers(argv, cmd):
     #Print out names of dead servers
     print 'These servers still down: '
     for srv in downsrvarray:
+	print srv
         hent = socket.gethostbyaddr(srv)
         if hent:
             print hent[0]
@@ -515,8 +518,7 @@ cmd_dict = {
         },
 }
 CFS_PIOBUFSIZE = 2048
-piobuf_str = "0" * CFS_PIOBUFSIZE
-piobuf = ctypes.c_char_p(piobuf_str)
+piobuf = ctypes.create_string_buffer('\0' * CFS_PIOBUFSIZE)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -535,5 +537,7 @@ if __name__ == '__main__':
             sys.exit(0)
 
     cmd_dict[cmd]["handler"](sys.argv, cmd)
+
+    
 
     sys.exit(0)
