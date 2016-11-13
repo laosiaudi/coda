@@ -232,7 +232,7 @@ class fsdb {
     int MarginPri()
       { return(marginpri); }
 
-    void GetStats(int *fa, int *fo, int *ba, int *bo) 
+    void GetStats(int *fa, int *fo, int *ba, int *bo)
       { *fa = MaxFiles; *fo = htab.count(); *ba = MaxBlocks; *bo = blocks; }
 
 
@@ -466,7 +466,7 @@ class fsobj {
     /*T*/short openers;				/* object openers */
     /*T*/short Writers;				/* object writers */
     /*T*/short Execers;				/* object execers (we don't know this under VFS!) */
-    /*T*/short refcnt;				/* readers + writers + openers + temporary_refs */   
+    /*T*/short refcnt;				/* readers + writers + openers + temporary_refs */
 
     // for asr invocation
     /*T*/long lastresolved;			// time when object was last resolved
@@ -537,6 +537,7 @@ class fsobj {
 
     /* Fake object management. */
     int Fakeify();
+    void CreateCFSFakeFile();
     int IsFake() { return(flags.fake); }
     int IsFakeDir() { return(flags.fake && IsDir() && !IsMtPt()); }
     int IsFakeMtPt() { return(flags.fake && IsMtPt()); }

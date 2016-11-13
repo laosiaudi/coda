@@ -144,7 +144,7 @@ struct uarea {
     int	u_retrycnt;		/* safeguard against infinite retry loops */
     int	u_wdblkcnt;		/* safeguard against infinite retry loops */
 
-    int u_pid;                  /* the process id of the calling process */ 
+    int u_pid;                  /* the process id of the calling process */
     int u_pgid;                 /* the process group id of the calling process */
 
     /* Initialization. */
@@ -177,6 +177,15 @@ class vproc : public olink {
     static char rtry_sync;
 
     void do_ioctl(VenusFid *fid, unsigned char nr, struct ViceIoctl *data);
+    int do_ioctl_op(int fd, int idx);
+    char **cfs_getparameter(char *path, int *argc);
+    void cfs_error(int fd, char *error);
+    void cfs_free(char **argv, int argc);
+    int cfs_listcache(int fd);
+    void cfs_copyout(char *path, int fd);
+    char piobuf[CFS_PIOBUFSIZE];
+
+
 
     void init(void);
 
@@ -232,12 +241,12 @@ class vproc : public olink {
     void setattr(struct venus_cnode *, struct coda_vattr *);
     void access(struct venus_cnode *, int);
     void lookup(struct venus_cnode *, char *, struct venus_cnode *, int);
-    void create(struct venus_cnode *, char *, struct coda_vattr *, int, 
+    void create(struct venus_cnode *, char *, struct coda_vattr *, int,
 		int, struct venus_cnode *);
     void remove(struct venus_cnode *, char *);
     void link(struct venus_cnode *, struct venus_cnode *, char *);
     void rename(struct venus_cnode *, char *, struct venus_cnode *, char *);
-    void mkdir(struct venus_cnode *, char *, struct coda_vattr *, 
+    void mkdir(struct venus_cnode *, char *, struct coda_vattr *,
 	       struct venus_cnode *);
     void rmdir(struct venus_cnode *, char *);
     void symlink(struct venus_cnode *, char *, struct coda_vattr *, char *);
