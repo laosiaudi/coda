@@ -22,7 +22,7 @@ listed in the file CREDITS.
  *
  *    ToDo:
  *       1. All mutating Vice calls should have the following IN arguments:
- *            NewSid, NewMutator (implicit from connection), NewMtime, 
+ *            NewSid, NewMutator (implicit from connection), NewMtime,
  *            OldVV and DataVersion (for each object), NewStatus (for each object)
  */
 
@@ -59,7 +59,7 @@ extern "C" {
 #include "venus.private.h"
 #include "venusrecov.h"
 #include "venusvol.h"
-#include "worker.h" 
+#include "worker.h"
 
 
 /*  *****  Fetch  *****  */
@@ -74,12 +74,12 @@ void fsobj::FetchProgressIndicator(unsigned long offset)
 {
     unsigned long last;
     unsigned long curr;
-    
+
     if (stat.Length > 100000) {
-        last = GotThisData / (stat.Length / 100) ; 
+        last = GotThisData / (stat.Length / 100) ;
 	curr = offset / (stat.Length / 100) ;
     } else if (stat.Length > 0) {
-        last = 100 * GotThisData / stat.Length ; 
+        last = 100 * GotThisData / stat.Length ;
 	curr = 100 * offset / stat.Length ;
     } else {
 	last = 0;
@@ -97,6 +97,7 @@ int fsobj::GetContainerFD(void)
 {
     FSO_ASSERT(this, IsFile());
 
+    //LOG(0, ("------------------------- ttttttttttttttttt\n"));
     RVMLIB_REC_OBJECT(data.file);
 
     /* create a sparse file of the desired size */
@@ -167,7 +168,7 @@ int fsobj::LookAside(void)
     flags.fetching = 0;
 
     if (lka_successful)
-	cf.SetValidData(cf.Length()); 
+	cf.SetValidData(cf.Length());
     Recov_EndTrans(CMFP);
 
     /* If we received any callbacks during the lookaside, the validity of the
@@ -275,7 +276,7 @@ int fsobj::Fetch(uid_t uid)
 
 		    sei->Tag = FILEINVM;
 		    sei->FileInfo.ByAddr.vmfile.MaxSeqLen = stat.Length;
-		    sei->FileInfo.ByAddr.vmfile.SeqBody = 
+		    sei->FileInfo.ByAddr.vmfile.SeqBody =
 			    (RPC2_ByteSeq)(DH_Data(&data.dir->dh));
 		    break;
 
@@ -413,7 +414,7 @@ int fsobj::Fetch(uid_t uid)
 	Recov_EndTrans(CMFP);
 
 RepExit:
-	if (m) m->Put(); 
+	if (m) m->Put();
 	switch(code) {
 	case 0:
 	    if (asy_resolve)
@@ -498,21 +499,21 @@ NonRepExit:
 	case File:
 		/* File is already `truncated' to the correct length */
 		break;
-		
+
 	case Directory:
 		rvmlib_set_range(DH_Data(&data.dir->dh), stat.Length);
 		break;
-		
+
 	case SymbolicLink:
 		rvmlib_set_range(data.symlink, stat.Length);
 		break;
-		
+
 	case Invalid:
 		FSO_ASSERT(this, 0);
 	}
     }
     else {
-       /* 
+       /*
 	* Return allocation and truncate. If a file, set the cache
 	* file length so that DiscardData releases the correct
 	* number of blocks (i.e., the number allocated in fsdb::Get).
@@ -526,7 +527,7 @@ NonRepExit:
 	/* ERETRY makes us drop back to the vproc_vfscalls level, and retry
 	 * the whole FSDB->Get operation */
 	if (code == EAGAIN) code = ERETRY;
-	
+
 	/* Demote existing status. */
 	Demote();
     }
@@ -565,10 +566,10 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
     ViceStatus status;
 
     /* SHA value (not always used) */
-    RPC2_BoundedBS mysha; 
+    RPC2_BoundedBS mysha;
     mysha.SeqBody = (RPC2_Byte *)VenusSHA;
     mysha.MaxSeqLen = SHA_DIGEST_LENGTH;
-    mysha.SeqLen = 0; 
+    mysha.SeqLen = 0;
 
     /* COP2 Piggybacking. */
     char PiggyData[COP2SIZE];
@@ -608,19 +609,19 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 	    ARG_MARSHALL_BS(IN_OUT_MODE, RPC2_BoundedBS, aclvar, *acl,
 			    VSG_MEMBERS, VENUS_MAXBSLEN);
 	    ARG_MARSHALL(OUT_MODE, ViceStatus, statusvar, status, VSG_MEMBERS);
- 
+
 	    ARG_MARSHALL_BS(OUT_MODE, RPC2_BoundedBS, myshavar, mysha, VSG_MEMBERS, SHA_DIGEST_LENGTH);
 
 
 	    if (HAVESTATUS(this) && !getacl) {
-		ViceFidAndVV FAVs[MAX_PIGGY_VALIDATIONS];    
+		ViceFidAndVV FAVs[MAX_PIGGY_VALIDATIONS];
 
-		/* 
-		 * pack piggyback fids and version vectors from this volume. 
+		/*
+		 * pack piggyback fids and version vectors from this volume.
 		 * We exclude busy objects because if their validation fails,
 		 * they end up in the same state (demoted) that they are now.
-		 * A nice optimization would be to pack them highest priority 
-		 * first, from the priority queue. Unfortunately this may not 
+		 * A nice optimization would be to pack them highest priority
+		 * first, from the priority queue. Unfortunately this may not
 		 * result in the most efficient packing because only
 		 * _replaceable_ objects are in the priority queue (duh).
 		 * So others that need to be checked may be missed,
@@ -654,10 +655,10 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 	        }
 
 		/* we need the fids in order */
-	        (void) qsort((char *) FAVs, numPiggyFids, sizeof(ViceFidAndVV), 
+	        (void) qsort((char *) FAVs, numPiggyFids, sizeof(ViceFidAndVV),
 			     (int (*)(const void *, const void *))FAV_Compare);
 
-		/* 
+		/*
 		 * another OUT parameter. We don't use an array here
 		 * because each char would be embedded in a struct that
 		 * would be longword aligned. Ugh.
@@ -694,7 +695,7 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 
 		if (code == EASYRESOLVE) { asy_resolve = 1; code = 0; }
 		else if (code == 0 || code == ERETRY) {
-		    /* 
+		    /*
 		     * collate flags from vsg members. even if the return
 		     * is ERETRY we can (and should) grab the flags.
 		     */
@@ -707,8 +708,8 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 				ARG_UNMARSHALL_BS(VFlagvar, VFlagBS, i);
 				numVFlags = (unsigned) VFlagBS.SeqLen;
 			    } else {
-				/* 
-				 * "and" in results from other servers. 
+				/*
+				 * "and" in results from other servers.
 				 * Remember that VFlagBS.SeqBody == VFlags.
 				 */
 				for (int j = 0; j < numPiggyFids; j++)
@@ -720,11 +721,11 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 			      GetComp(), numPiggyFids, numVFlags));
 
 		    nchecked += numPiggyFids;
-		    /* 
-		     * now set status of piggybacked objects 
+		    /*
+		     * now set status of piggybacked objects
 		     */
 		    for (i = 0; i < numVFlags; i++) {
-			/* 
+			/*
 			 * lookup this object. It may have been flushed and
 			 * reincarnated as a runt in the while we were out,
 			 * so we check status again.
@@ -746,8 +747,8 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 				    pobj->SetRcRights(RC_STATUS);
 				else
 				    pobj->SetRcRights(RC_STATUS | RC_DATA);
-				/* 
-				 * if the object matched, the access rights 
+				/*
+				 * if the object matched, the access rights
 				 * cached for this object are still good.
 				 */
 				if (pobj->IsDir()) {
@@ -758,7 +759,7 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 				/* invalidate status (and data) for this object */
 				LOG(1, ("fsobj::GetAttr: ValidateAttrs (%s), fid (%s) validation failed\n",
 					pobj->GetComp(), FID_(&FAVs[i].Fid)));
-				
+
 				if (REPLACEABLE(pobj) && !BUSY(pobj)) {
 				  LOG(1, ("fsobj::GetAttr: Killing (%s), REPLACEABLE and !BUSY\n", pobj->GetComp()));
 				    Recov_BeginTrans();
@@ -767,8 +768,8 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 				} else
 				    pobj->Demote();
 
-				nfailed++;	
-				/* 
+				nfailed++;
+				/*
 				 * If we have data, it is stale and must be
 				 * discarded, unless someone is writing or
 				 * executing it, or it is a fake directory.
@@ -804,7 +805,7 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 		     If this proves unacceptable, we'll need to treat the
 		     ViceGetACL branch of this code just like ViceValidateAttrs()
 		     and ViceGetAttr() branches.   (Satya, 1/03)
-		   
+
 		     Side note: ACL's only exist for directory objects, and
 		     lookaside only works for file objects, so it really
 		     shouldn't matter right now -JH.
@@ -864,9 +865,9 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 	    if (code == EASYRESOLVE) { asy_resolve = 1; code = 0; }
 	    if (code != 0) goto RepExit;
 
-	    /* 
-	     * Compute the dominant host set.  
-	     * The index of a dominant host is returned as a side-effect. 
+	    /*
+	     * Compute the dominant host set.
+	     * The index of a dominant host is returned as a side-effect.
 	     */
 	    int dh_ix; dh_ix = -1;
 	    code = m->DHCheck(vv_ptrs, ph_ix, &dh_ix, 1);
@@ -929,7 +930,7 @@ int fsobj::GetAttr(uid_t uid, RPC2_BoundedBS *acl)
 		    DiscardData();
 		    Recov_EndTrans(CMFP);
 		    code = ERETRY;
-		    
+
 		    goto RepExit;
 		}
     	    }
@@ -1159,7 +1160,7 @@ int fsobj::DisconnectedStore(Date_t Mtime, uid_t uid, unsigned long NewLength,
 	/* Failure to log a store would be most unpleasant for the user! */
 	/* Probably we should try to guarantee that it never happens (e.g., by reserving a record at open). */
     code = rv->LogStore(Mtime, uid, &fid, NewLength, prepend);
-    
+
     if (code == 0 && prepend == 0)
             /* It's already been updated if we're 'prepending',
 	     * which basically means it is a repair-related operation,
@@ -1377,7 +1378,7 @@ int fsobj::SetACL(RPC2_CountedBS *acl, uid_t uid)
     /* VCB arguments */
     RPC2_Integer VS = 0;
     CallBackStatus VCBStatus = NoCallBack;
-    RPC2_CountedBS OldVS; 
+    RPC2_CountedBS OldVS;
     OldVS.SeqLen = 0;
     OldVS.SeqBody = 0;
 

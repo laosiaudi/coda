@@ -66,6 +66,7 @@ extern "C" {
 
 /* from venus */
 #include "venus.private.h"
+#include <prs.h>
 
 
 /* string with counts */
@@ -179,10 +180,23 @@ class vproc : public olink {
     void do_ioctl(VenusFid *fid, unsigned char nr, struct ViceIoctl *data);
     int do_ioctl_op(int fd, int idx);
     char **cfs_getparameter(char *path, int *argc);
-    void cfs_error(int fd, char *error);
+    void cfs_output(int fd, char *error);
     void cfs_free(char **argv, int argc);
     int cfs_listcache(int fd);
+    int cfs_checkservers(int fd);
+    int cfs_checkvolumes(int fd);
+    int cfs_clearpriorities(int fd);
+    int cfs_flushcache(int fd);
+    int cfs_flushvolume(int fd);
+    int cfs_listacl(int fd);
+    void cfs_lsmount(int fd);
+    int cfs_parseacl(char *s, struct acl *a);
+    void cfs_translate(char *s, char oldc, char newc);
+    void cfs_fillrights(int x, char *s);
+    int cfs_getlongest(int argc, char *argv[]);
+    char *cfs_myrealpath(const char *path, char *buf, size_t size);
     void cfs_copyout(char *path, int fd);
+    int cfs_parseHost(char *name_or_ip, struct in_addr *addr);
     char piobuf[CFS_PIOBUFSIZE];
 
 

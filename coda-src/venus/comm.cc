@@ -56,7 +56,7 @@ extern "C" {
 #include <rpc2/se.h>
 #include <rpc2/errors.h>
 
-extern int Fcon_Init(); 
+extern int Fcon_Init();
 extern void SFTP_SetDefaults (SFTP_Initializer *initPtr);
 extern void SFTP_Activate (SFTP_Initializer *initPtr);
 
@@ -524,13 +524,13 @@ void PutServer(srvent **spp)
 /*
  *    The probe routines exploit parallelism in three ways:
  *       1. MultiRPC is used to perform the Probe RPC (actually, a ViceGetTime)
- *       2. Slave vprocs are used to overlap the probing of "up" servers and 
+ *       2. Slave vprocs are used to overlap the probing of "up" servers and
  * 	    the binding/probing of "down" servers.  Otherwise probing of "up"
  *	    servers may be delayed for the binding to "down" servers.
- *       3. (Additional) slave vprocs are used to overlap the binding of 
+ *       3. (Additional) slave vprocs are used to overlap the binding of
  *          "down" servers
  *
- *    Note that item 3 is only needed because MultiBind functionality is not 
+ *    Note that item 3 is only needed because MultiBind functionality is not
  *    yet a part of MultiRPC.
  */
 
@@ -723,7 +723,7 @@ void MultiProbe(int HowMany, RPC2_Handle *Handles)
 	(RPC2_Unsigned *)malloc(HowMany * sizeof(RPC2_Unsigned));
     CODA_ASSERT(secs_bufs);
     for (int i = 0; i < HowMany; i++)
-	secs_ptrs[i] = &secs_bufs[i]; 
+	secs_ptrs[i] = &secs_bufs[i];
     RPC2_Integer  **usecs_ptrs =
 	(RPC2_Integer **)malloc(HowMany * sizeof(RPC2_Integer *));
     CODA_ASSERT(usecs_ptrs);
@@ -731,7 +731,7 @@ void MultiProbe(int HowMany, RPC2_Handle *Handles)
 	(RPC2_Integer *)malloc(HowMany * sizeof(RPC2_Integer));
     CODA_ASSERT(usecs_bufs);
     for (int ii = 0; ii < HowMany; ii++)
-	usecs_ptrs[ii] = &usecs_bufs[ii]; 
+	usecs_ptrs[ii] = &usecs_bufs[ii];
 
     /* Make the RPC call. */
     MarinerLog("fetch::Probe\n");
@@ -845,7 +845,7 @@ void DownServers(int nservers, struct in_addr *hostids,
 }
 
 
-/* 
+/*
  * Update bandwidth estimates for all up servers.
  * Reset estimates and declare connectivity strong if there are
  * no recent observations.  Called by the probe daemon.
@@ -857,7 +857,7 @@ void CheckServerBW(long curr_time)
     unsigned long bw = INIT_BW;
 
     while ((s = next())) {
-	if (s->ServerIsUp()) 
+	if (s->ServerIsUp())
 	    (void) s->GetBandwidth(&bw);
     }
 }
@@ -993,7 +993,7 @@ int srvent::GetStatistics(ViceStatistics *Stats)
     connent *c = 0;
 
     memset(Stats, 0, sizeof(ViceStatistics));
-    
+
     code = GetConn(&c, ANYUSER_UID);
     if (code != 0) goto Exit;
 
@@ -1139,7 +1139,7 @@ long srvent::GetLiveness(struct timeval *tp)
     t.tv_sec = t.tv_usec = 0;
 
     /* we don't have a real connid if the server is down or "quasi-up" */
-    if (connid <= 0) 
+    if (connid <= 0)
 	return(ETIMEDOUT);
 
     /* Our peer is at the other end of the callback connection */
@@ -1157,7 +1157,7 @@ long srvent::GetLiveness(struct timeval *tp)
 }
 
 
-/* 
+/*
  * calculates current bandwidth to server, taking the current estimates from
  * RPC2/SFTP.
  *

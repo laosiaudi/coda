@@ -71,7 +71,7 @@ int FSO_SSF = UNSET_SSF;
 
 /* Call with CacheDir the current directory. */
 void FSOInit() {
-    int i; 
+    int i;
 
     /* Allocate the database if requested. */
     if (InitMetaData) {					/* <==> FSDB == 0 */
@@ -89,11 +89,11 @@ void FSOInit() {
 	    if (!InitMetaData)
 		    eprint("Warning: CacheBlocks changing from %d to %d",
 			   FSDB->MaxBlocks, CacheBlocks);
-	    
+
 	    FSDB->MaxBlocks = CacheBlocks;
     }
     FSDB->FreeBlockMargin = FSDB->MaxBlocks / FREE_FACTOR;
-    
+
     if (InitMetaData || (FSO_SWT != UNSET_SWT && FSDB->swt != FSO_SWT))
 	    FSDB->swt = (FSO_SWT == UNSET_SWT ? DFLT_SWT : FSO_SWT);
     if (InitMetaData || (FSO_MWT != UNSET_MWT && FSDB->mwt != FSO_MWT))
@@ -195,9 +195,9 @@ void FSOInit() {
 
 	/* Recover parent <--> child bindings. */
 	/* This MUST wait until all fsobj's have been recovered/reset! */
-	/* 
+	/*
 	 * Need not be in a transaction for the call to SetParent, because
-	 * the parent vnode and unique arguments are the very ones in the fsobj 
+	 * the parent vnode and unique arguments are the very ones in the fsobj
 	 * (no recoverable store gets changed).
 	 */
 	{
@@ -373,9 +373,9 @@ void fsdb::ResetTransient() {
     Recomputes = 0;
     Reorders = 0;
 
-    /* 
-     * matriculation_sync doesn't need to be initialized. 
-     * It's used only for LWP_Wait and LWP_Signal. 
+    /*
+     * matriculation_sync doesn't need to be initialized.
+     * It's used only for LWP_Wait and LWP_Signal.
      */
     matriculation_count = 0;
 }
@@ -472,7 +472,7 @@ fsobj *fsdb::Create(VenusFid *key, int priority, const char *comp,
 }
 
 
-/* 
+/*
  * Problem here is that we *must* have a volent pointer.  If a miss is on the
  * volume itself, we don't have that pointer.  Where do we put the info?
  */
@@ -487,10 +487,10 @@ fsobj *fsdb::Create(VenusFid *key, int priority, const char *comp,
 /* argument "rcode" added for local-repair */
 /* MUST NOT be called from within transaction! */
 /* Returns object READ-locked on success. */
-/* 
- * Should NOT call with FSO_HOLD on object.  Venus will be unable to 
- * correctly handle objects which go inconsistent incorrectly forcing a 
- * return value of ETOOMANYREFS to the user when there is *nothing* the 
+/*
+ * Should NOT call with FSO_HOLD on object.  Venus will be unable to
+ * correctly handle objects which go inconsistent incorrectly forcing a
+ * return value of ETOOMANYREFS to the user when there is *nothing* the
  * poor user can do about it.
  */
 int fsdb::Get(fsobj **f_addr, VenusFid *key, uid_t uid, int rights,
@@ -502,7 +502,7 @@ int fsdb::Get(fsobj **f_addr, VenusFid *key, uid_t uid, int rights,
     *f_addr = 0;		     /* OUT parameter valid on success only. */
     vproc *vp = VprocSelf();
 
-    LOG(100, ("fsdb::Get: key = (%s), uid = %d, rights = %d, comp = %s\n",
+    LOG(0, ("fsdb::Get: key = (%s), uid = %d, rights = %d, comp = %s\n",
 	       FID_(key), uid, rights, comp));
 
     /* if (vp->type != VPT_HDBDaemon)
@@ -566,37 +566,37 @@ RestartFind:
 	    return(EIO);
 	  }
 
-	/* 
+	/*
 	 * check if the key is a locally generated fid.  We should never send
 	 * these to the server.  This check is not to be confused with
 	 * the routine fsobj::IsLocalFid, which checks to see if the _volume_
 	 * the object belongs to is the local volume.  yuck.  --lily
 	 */
 	if (FID_IsDisco(MakeViceFid(key))) {
-	  LOG(0, ("fsdb::Get: Locally created fid %s not found!\n", 
+	  LOG(0, ("fsdb::Get: Locally created fid %s not found!\n",
 			  FID_(key)));
 	  return ETIMEDOUT;
 	}
-	
+
 	/* Must ensure that the volume is cached. */
 	volent *v = 0;
 	if (VDB->Get(&v, MakeVolid(key))) {
 	  LOG(100, ("Volume not cached and we couldn't get it...\n"));
 	  return(ETIMEDOUT);
 	}
-	
+
 	/* Retry the find, in case some other thread created the object while we blocked in vdb::Get(). */
 	if (Find(key)) {
 	  VDB->Put(&v);
 	  goto RestartFind;
 	}
-	
+
 	if (v->IsResolving()) {
 	  LOG(0, ("Volume resolving and file not cached, retrying VDB->Get!\n"));
 	  VDB->Put(&v);
 	  return(ERETRY);
 	}
-	
+
 	/* Cut-out early if volume is unreachable! */
 	if (v->IsUnreachable()) {
 	  LOG(100, ("Volume unreachable and file not cached!\n"));
@@ -643,7 +643,7 @@ RestartFind:
 	  }
 	  goto RestartFind;
 	}
-	
+
 	/* Perform GC if necessary. */
 	if (GCABLE(f)) {
 	  Recov_BeginTrans();
@@ -651,7 +651,7 @@ RestartFind:
 	  Recov_EndTrans(MAXFP);
 	  goto RestartFind;
 	}
-	
+
 	/* Read-lock the entry. */
 	f->Lock(RD);
 
@@ -743,19 +743,19 @@ RestartFind:
 			return(code);
 		  }
 		}
-		
+
 		/* compensate # blocks for the amount we already have.
 		 * (only used for vmon statistical stuff later on, but
 		 * the fetch will modify f->cf.ValidData) */
 		nblocks -= NBLOCKS(f->cf.ValidData());
-		
+
 		code = 0;
 		/* first try the LookAside cache */
 		if (!f->LookAside()) {
 		  /* Let fsobj::Fetch go ahead and fetch the object */
 		  code = f->Fetch(uid);
 		}
-		
+
 		/* Restart operation in case of inconsistency. */
 		if (code == EINCONS)
 		  code = ERETRY;
@@ -963,17 +963,17 @@ void fsdb::Flush()
     /*
      * don't flush volume root only because some cached objects may
      * not be reachable.  If the flush actually works, the object
-     * will disappear, and some number of descendants may 
-     * disappear as well.  In this case, the iterator must be 
+     * will disappear, and some number of descendants may
+     * disappear as well.  In this case, the iterator must be
      * restarted. We're done when there's nothing flushable left.
      */
     int restart = 1;
     while (restart) {
 	fsobj *f;
 	fso_iterator next(NL);
-	
+
 	restart = 0;
-	while ((f = next())) 
+	while ((f = next()))
 	    if (f->Flush() == 0) {
 		restart = 1;
 		break;
@@ -988,7 +988,7 @@ void fsdb::Flush(Volid *vid)
     volent *v;
     v = VDB->Find(vid);
     if (!v) return;
-    
+
     /* comment in fsdb::Flush applies here */
     int restart = 1;
     while (restart) {
@@ -1003,7 +1003,7 @@ void fsdb::Flush(Volid *vid)
 		n = list_entry_plusplus(next, fsobj, vol_handle);
 		FSO_HOLD(n);
 	    }
-	
+
 	    if (f->Flush() == 0)
 		restart = 1;
 
@@ -1014,15 +1014,15 @@ void fsdb::Flush(Volid *vid)
 }
 
 
-/* This is supports translation of "local" to "remote" Fids during 
+/* This is supports translation of "local" to "remote" Fids during
    reintegration.  Note that given a fid it can appear in several
    directories:
    - in itself (if a directory fid) for the "." entries
    - in its directory children as ".."
-   - in its parent as the named entry 
+   - in its parent as the named entry
    so we must do 3 replacements
 
-   MUST be called from within transaction! 
+   MUST be called from within transaction!
 
    This routine can als replace local fids with global ones and
    then, exceptionally, they appear as cross volume replacements.
@@ -1031,12 +1031,12 @@ void fsdb::Flush(Volid *vid)
 
 */
 
-int fsdb::TranslateFid(VenusFid *OldFid, VenusFid *NewFid) 
+int fsdb::TranslateFid(VenusFid *OldFid, VenusFid *NewFid)
 {
 	fsobj *f = 0;
 	VenusFid pFid;
 
-	LOG(100, ("fsdb::TranslateFid: %s --> %s\n", FID_(OldFid), 
+	LOG(100, ("fsdb::TranslateFid: %s --> %s\n", FID_(OldFid),
 		  FID_(NewFid)));
 
 	/* cross volume replacements are for local fids */
@@ -1254,7 +1254,7 @@ void fsdb::ReclaimFsos(int priority, int count) {
 	    { f->print(logFile); CHOKE("fsdb::ReclaimFsos: !REPLACEABLE"); }
 
 	/* Remaining replaceable entries have equal or higher priority! */
-	if (vp->type == VPT_HDBDaemon) 
+	if (vp->type == VPT_HDBDaemon)
 	    { if (priority <= f->priority) break; }
 
 	/* Can't reclaim if busy. */

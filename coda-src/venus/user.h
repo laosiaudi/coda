@@ -86,7 +86,7 @@ class userent {
     void Reset();
     int Connect(RPC2_Handle *, int *, struct in_addr *);
     int GetWaitForever();
-    void SetWaitForever(int);   
+    void SetWaitForever(int);
 
     uid_t GetUid() { return(uid); }
 

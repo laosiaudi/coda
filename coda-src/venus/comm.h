@@ -244,7 +244,7 @@ class srvent : private RefCountedObject {
     unsigned unused : 1;
     unsigned long bw;		/* bandwidth estimate, Bytes/sec */
     struct timeval lastobs;	/* time of most recent estimate */
-  
+
     /* Constructors, destructors, and private utility routines. */
     srvent(struct in_addr *host, RealmId realmid);
     srvent(srvent&) { abort(); }	/* not supported! */

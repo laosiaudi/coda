@@ -223,10 +223,10 @@ void vproc::open(struct venus_cnode *cp, int flags)
             LOG(0, ("------------------------- 0xffffffff8 %d", cp->c_fid.Vnode));
             //int fd = f->GetContainerFD();
             int fd = f->data.file->Open(O_WRONLY);
-            LOG(0, ("------------------------- 0xffffffff8, pioctl finish initialzation"));
             int idx = 0xfffffff8 - cp->c_fid.Vnode;
-            if (!idx % 2) {
-                int total = do_ioctl_op(fd, idx);
+            LOG(0, ("------------------------- 0xffffffff8, pioctl finish initialzation idx is %d\n", idx));
+            if (!(idx % 2)) {
+                int total = do_ioctl_op(fd, idx / 2);
             }
             f->data.file->Close(fd);
             //f->data.file->SetLength(total);
